@@ -92,6 +92,20 @@ poetry run python
 
 ---
 
+### 4 Install Packages
+
+```bash
+poetry add package-name
+```
+
+install dev dependancies:
+
+```bash
+poetry add --group dev package-name
+```
+---
+
+
 ## 📊 Data Workflow
 
 1. **Fetch data** from APIs / sources
@@ -175,3 +189,10 @@ DB_PASSWORD=
 ## 📄 License
 
 MIT
+
+
+1. Created project with poetry with local virtual env
+2. Add readme
+3. Add gitignore, run git init, add remote repo
+4. Add .env
+5. Add linter, prettier, improrts sorting, add config in pyproject.toml, set autoformat on save in vscode
