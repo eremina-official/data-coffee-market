@@ -24,8 +24,6 @@ Due to restrictions on the `offers/listing` endpoint (as of January 2026 availab
 
 ### 🧱 Tech Stack
 
-Tech Stack
-
 - Python (Poetry, Pandas, SQLAlchemy)
 - MySQL (time-based snapshots)
 - DBeaver (database management)

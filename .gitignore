@@ -39,6 +39,7 @@ htmlcov/
 # ===============================
 data/raw/
 data/processed/
+allegro_responses
 *.csv
 *.parquet
 *.json

@@ -5,6 +5,8 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "requests (>=2.32.5,<3.0.0)",
+    "python-dotenv (>=1.2.1,<2.0.0)"
 ]
 
 [tool.poetry]
