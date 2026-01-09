@@ -208,3 +208,10 @@ MIT
 3. Add gitignore, run git init, add remote repo
 4. Add .env
 5. Add linter, prettier, improrts sorting, add config in pyproject.toml, set autoformat on save in vscode
+
+6. Get data from Allegro REST API
+7. Create database schema based on data structure
+8. Create connection to local mysql db
+9. Create python functions to insert one product to db
+10. Insert 30 products to db in loop
+

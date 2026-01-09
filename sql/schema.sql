@@ -8,7 +8,12 @@ CREATE TABLE IF NOT EXISTS products (
     name VARCHAR(255) NOT NULL,
     publication_status VARCHAR(50),
     description TEXT,
+    images JSON,
+    category_id VARCHAR(50),
+    ean VARCHAR(20), -- EAN (GTIN) parameter is a standardized identifier for products
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+    CONSTRAINT fk_products_category
+        FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
 -- 2. Categories table
@@ -19,16 +24,7 @@ CREATE TABLE IF NOT EXISTS categories (
     FOREIGN KEY (parent_id) REFERENCES categories(id)
 );
 
--- 3. Product-Categories mapping
-CREATE TABLE IF NOT EXISTS product_categories (
-    product_id VARCHAR(50),
-    category_id VARCHAR(50),
-    PRIMARY KEY (product_id, category_id),
-    FOREIGN KEY (product_id) REFERENCES products(id),
-    FOREIGN KEY (category_id) REFERENCES categories(id)
-);
-
--- 4. Parameters table
+-- 4. Parameters table (dictionary of all existing parameters)
 CREATE TABLE IF NOT EXISTS parameters (
     id VARCHAR(50) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -36,7 +32,7 @@ CREATE TABLE IF NOT EXISTS parameters (
     identifies_product BOOLEAN DEFAULT FALSE
 );
 
--- 5. Parameter Values table
+-- 5. Parameter Values table (values for parameters)
 CREATE TABLE IF NOT EXISTS parameter_values (
     id VARCHAR(50) PRIMARY KEY,
     parameter_id VARCHAR(50),
@@ -45,28 +41,13 @@ CREATE TABLE IF NOT EXISTS parameter_values (
     FOREIGN KEY (parameter_id) REFERENCES parameters(id)
 );
 
--- 6. Product-ParameterValues mapping
+-- 6. Product-ParameterValues mapping (actual parameters data for products)
 CREATE TABLE IF NOT EXISTS product_parameter_values (
     product_id VARCHAR(50),
     value_id VARCHAR(50),
     PRIMARY KEY (product_id, value_id),
     FOREIGN KEY (product_id) REFERENCES products(id),
     FOREIGN KEY (value_id) REFERENCES parameter_values(id)
-);
-
--- 7. Images table
-CREATE TABLE IF NOT EXISTS images (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    url TEXT NOT NULL
-);
-
--- 8. Product-Images mapping
-CREATE TABLE IF NOT EXISTS product_images (
-    product_id VARCHAR(50),
-    image_id INT,
-    PRIMARY KEY (product_id, image_id),
-    FOREIGN KEY (product_id) REFERENCES products(id),
-    FOREIGN KEY (image_id) REFERENCES images(id)
 );
 
 -- 9. Optional: Responsible Producers (from productSafety)
