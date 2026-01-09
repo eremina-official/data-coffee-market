@@ -1,135 +1,124 @@
-import mysql.connector
 import json
 import os
 from db_connection import get_connection
 
 BASE_DIR = os.path.dirname(__file__)  # folder of current script
-file_path = os.path.join(BASE_DIR, "product.json")
+file_path = os.path.join(BASE_DIR, "product5.json")
 
 print("get_connection", get_connection)
 
-# Example: load product JSON from file
-with open(file_path, "r", encoding="utf-8") as f:
-    product = json.load(f)
+# === Database connection ===
+conn = get_connection()
+cursor = conn.cursor()
 
 
+# === Helper functions ===
+def insert_category(category):
+    """Insert category and its parent recursively."""
+    parent_id = category.get("parent_id")
+    cursor.execute(
+        "INSERT IGNORE INTO categories (id, name, parent_id) VALUES (%s, %s, %s)",
+        (category["id"], category["name"], parent_id),
+    )
+
+
+def insert_parameter(param):
+    """Insert parameter only if it does not exist."""
+    cursor.execute(
+        "INSERT IGNORE INTO parameters (id, name, unit, identifies_product) VALUES (%s, %s, %s, %s)",
+        (
+            param["id"],
+            param["name"],
+            param.get("unit"),
+            param.get("options", {}).get("identifiesProduct", False),
+        ),
+    )
+
+
+def insert_parameter_value(param_id, value_id, label, value=None):
+    """Insert parameter value only if it does not exist."""
+    cursor.execute(
+        "INSERT IGNORE INTO parameter_values (id, parameter_id, label, value) VALUES (%s, %s, %s, %s)",
+        (value_id, param_id, label, value),
+    )
+
+
+def map_product_parameter(product_id, value_id):
+    """Map product to parameter value."""
+    cursor.execute(
+        "INSERT IGNORE INTO product_parameter_values (product_id, value_id) VALUES (%s, %s)",
+        (product_id, value_id),
+    )
+
+
+# === Insert product ===
 def insert_product(product):
-    conn = get_connection()
-    cursor = conn.cursor()
+    # Insert category and parent categories
+    for cat in product["category"]["path"]:
+        parent_id = cat.get("parent_id")
+        cursor.execute(
+            "INSERT IGNORE INTO categories (id, name, parent_id) VALUES (%s, %s, %s)",
+            (cat["id"], cat["name"], parent_id),
+        )
 
-    # ---- 1️⃣ Insert product ----
-    description_text = ""
-    for section in product.get("description", {}).get("sections", []):
-        for item in section.get("items", []):
-            if item.get("type") == "TEXT":
-                description_text += item.get("content", "") + "\n"
+    # --- Extract EAN (GTIN) ---
+    ean = None
+    for param in product.get("parameters", []):
+        if param["name"] == "EAN (GTIN)":
+            ean = param.get("values", [param.get("valuesLabels", [None])[0]])[0]
 
+    # Insert product
     cursor.execute(
         """
-        INSERT INTO products (id, name, publication_status, description)
-        VALUES (%s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE name=VALUES(name), publication_status=VALUES(publication_status), description=VALUES(description)
-    """,
+        INSERT INTO products (id, name, publication_status, description, images, category_id, ean)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE id=id
+        """,
         (
             product["id"],
             product["name"],
             product.get("publication", {}).get("status"),
-            description_text.strip(),
+            json.dumps(product.get("description", {})),  # store description as JSON
+            json.dumps(
+                [img["url"] for img in product.get("images", [])]
+            ),  # store images as JSON
+            product["category"]["id"],
+            ean,
         ),
     )
 
-    # ---- 2️⃣ Insert categories ----
-    def insert_category_path(path):
-        parent_id = None
-        for cat in path:
-            cursor.execute(
-                """
-                INSERT INTO categories (id, name, parent_id)
-                VALUES (%s, %s, %s)
-                ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id)
-            """,
-                (cat["id"], cat["name"], parent_id),
-            )
-            parent_id = cat["id"]
-
-    insert_category_path(product["category"]["path"])
-
-    # ---- 3️⃣ Map product to main category ----
-    main_cat_id = product["category"]["id"]
-    cursor.execute(
-        """
-        INSERT IGNORE INTO product_categories (product_id, category_id)
-        VALUES (%s, %s)
-    """,
-        (product["id"], main_cat_id),
-    )
-
-    # ---- 4️⃣ Insert parameters ----
+    # Insert parameters and parameter values
     for param in product.get("parameters", []):
-        cursor.execute(
-            """
-            INSERT INTO parameters (id, name, unit, identifies_product)
-            VALUES (%s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE name=VALUES(name), unit=VALUES(unit), identifies_product=VALUES(identifies_product)
-        """,
-            (
-                param["id"],
-                param["name"],
-                param.get("unit"),
-                param.get("options", {}).get("identifiesProduct", False),
-            ),
-        )
+        # Skip parameters without 'valuesIds' (unique id for each existing value, params like "Waga")
+        if "valuesIds" not in param:
+            continue
 
-        # ---- 5️⃣ Insert parameter values ----
-        for idx, label in enumerate(param.get("valuesLabels", [])):
-            value_id = None
-            if param.get("valuesIds"):
-                value_id = param["valuesIds"][idx]
-            value_val = None
-            if param.get("values"):
-                value_val = param["values"][idx]
-            cursor.execute(
-                """
-                INSERT INTO parameter_values (id, parameter_id, label, value)
-                VALUES (%s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE label=VALUES(label), value=VALUES(value)
-            """,
-                (value_id, param["id"], label, value_val),
+        insert_parameter(param)
+        values_labels = param.get("valuesLabels", []) or []
+        values_values = param.get("values", values_labels) or []
+
+        if not values_values:
+            values_values = [None] * len(values_labels)  # Fill with None for zip
+
+        values_ids = (
+            param.get(
+                "valuesIds", [f'{param["id"]}_{i}' for i in range(len(values_labels))]
             )
-
-            # ---- 6️⃣ Map product to parameter value ----
-            if value_id:
-                cursor.execute(
-                    """
-                    INSERT IGNORE INTO product_parameter_values (product_id, value_id)
-                    VALUES (%s, %s)
-                """,
-                    (product["id"], value_id),
-                )
-
-    # ---- 7️⃣ Insert images ----
-    for img in product.get("images", []):
-        cursor.execute(
-            """
-            INSERT IGNORE INTO images (url)
-            VALUES (%s)
-        """,
-            (img["url"],),
+            or []
         )
-        cursor.execute(
-            """
-            INSERT IGNORE INTO product_images (product_id, image_id)
-            SELECT %s, id FROM images WHERE url = %s
-        """,
-            (product["id"], img["url"]),
-        )
+        for vid, label, val in zip(values_ids, values_labels, values_values):
+            insert_parameter_value(param["id"], vid, label, val)
+            map_product_parameter(product["id"], vid)
 
-    # Commit all changes
+    # Commit after each product
     conn.commit()
+
+
+# === Example usage ===
+if __name__ == "__main__":
+    with open(file_path, "r", encoding="utf-8") as f:
+        product_data = json.load(f)
+
+    insert_product(product_data)
     cursor.close()
     conn.close()
-    print(f"Inserted product {product['name']} ({product['id']}) successfully!")
-
-
-# if __name__ == "__main__":
-#     insert_product(product)
