@@ -1,11 +1,11 @@
 import json
 import os
-from db_connection import get_connection
+from db.db_connection import get_connection
+
 
 BASE_DIR = os.path.dirname(__file__)  # folder of current script
 file_path = os.path.join(BASE_DIR, "product5.json")
 
-print("get_connection", get_connection)
 
 # === Database connection ===
 conn = get_connection()
@@ -53,6 +53,11 @@ def map_product_parameter(product_id, value_id):
 
 # === Insert product ===
 def insert_product(product):
+    # Insert only 'kawa ziarnista' and 'kawa mielona' products (category ids: '74035', '74033')
+    coffee_category_ids = ("74035", "74033")
+    if product["category"]["id"] not in coffee_category_ids:
+        return
+
     # Insert category and parent categories
     for cat in product["category"]["path"]:
         parent_id = cat.get("parent_id")
@@ -114,11 +119,10 @@ def insert_product(product):
     conn.commit()
 
 
-# === Example usage ===
-if __name__ == "__main__":
-    with open(file_path, "r", encoding="utf-8") as f:
-        product_data = json.load(f)
+# # if __name__ == "__main__":
+# #     with open(file_path, "r", encoding="utf-8") as f:
+# #         product_data = json.load(f)
 
-    insert_product(product_data)
-    cursor.close()
-    conn.close()
+# #     insert_product(product_data)
+# #     cursor.close()
+# #     conn.close()

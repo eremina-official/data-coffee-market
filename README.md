@@ -1,7 +1,15 @@
-## Polish Independent Coffee Roasters – Market Analysis 🇵🇱☕
+## Polish Independent Coffee Roasters – ETL project 🇵🇱☕
 
 This project analyzes the Polish market of coffee sold by **independent/private roasting houses** (excluding mass-market brands), focusing on pricing, origin countries and brands. The goal is to collect, store and analyze market data over time and present insights via a BI/dashboard layer. 
 The classification is based on seller identity and branding, not on official quality certifications.
+
+---
+
+### 🎯 Project Goals
+
+* Create an ETL pipeline for coffee market data
+* Collect coffee market data periodically (prices, brands, availability, ratings, etc.)
+* Prepare clean datasets for BI tools (e.g. Power BI)
 
 ---
 
@@ -9,17 +17,7 @@ The classification is based on seller identity and branding, not on official qua
 
 Data is collected using the **Allegro REST API** `sale/products` endpoint, which provides listed product data ([documentation](https://developer.allegro.pl/documentation#tag/Products/operation/getFlatProductParametersUsingGET)).
 
-Due to restrictions on the `offers/listing` endpoint (as of January 2026 available only for verified applications), pricing is not possible to collect via REST API.
-
----
-
-### 🎯 Project Goals
-
-* Collect coffee market data periodically (prices, brands, availability, ratings, etc.)
-* Store historical data for time-based analysis
-* Analyze trends (price changes, popularity, availability)
-* Prepare clean datasets for BI tools (e.g. Power BI)
-
+Due to restrictions on the `offers/listing` endpoint (as of January 2026 available only for verified applications), pricing data cannot be reliably collected via the REST API.
 ---
 
 ### 🧱 Tech Stack
@@ -31,31 +29,58 @@ Due to restrictions on the `offers/listing` endpoint (as of January 2026 availab
 
 ---
 
+### Methodology
+
+**Data Extractions**
+Products were fetched using the `/sale/products` endpoint with keyword-based search (e.g. `kawa palarnia`).
+Responses were stored as raw JSON files for traceability and repeatability.
+
+**Data Transformation**
+A normalized relational schema (snowflake-style) was designed in MySQL.
+
+Core entities include:
+- products
+- categories
+- parameters (dictionary)
+- parameter_values
+- product_parameter_values (many-to-many mapping)
+
+Reusable attributes (e.g. brand, origin, roast type) are stored once and linked to products. Images and descriptions are stored as JSON to preserve original structure.
+
+**Data Loading**
+
+Python scripts load raw JSON files and insert data into MySQL. Dictionary tables (parameters, parameter_values) are populated once and reused.
+Products are inserted idempotently to avoid duplication.
+Selected parameters (e.g. redundant weight attributes) are explicitly excluded during ingestion.
+
+**Data Quality Rules**
+
+- Ignore parameters without stable or reusable identifiers.
+- Filter out non-coffee products returned by keyword-based searches.
+- Standardize parameter names, values, and measurement units where possible.
+
+**Analysis**
+SQL queries are used to:
+- Compare coffee origins, brands, and characteristics
+- Count products by selected attributes
+- Filter products based on parameter cardinality
+The analysis focuses on market structure and product characteristics, not pricing or seller performance.
+
+**Limitations**
+Prices and availability are not analyzed due to restricted access to live listings.
+Catalog products may exist without active offers.
+Results reflect catalog data, not real-time market dynamics.
+
+---
+
 ### 📁 Project Structure
 
 ```text
-src/                       # Python scripts, modules
-├── coffee_market_analysis/
-│   ├── __init__.py
-│   ├── config.py          # configuration & constants
-│   ├── fetchers/          # API / scraping logic
-│   ├── models/            # data models / schemas
-│   ├── pipelines/         # ETL / data processing
-│   └── utils/             # shared helpers
-│
-├── data/                    # database scripts
-│   ├──            # table definitions
-│   ├── indexes.sql          # optional indexes
-│   └── sample_inserts.sql   # optional sample data
-|
-│── sql/
-│   ├── raw/               # raw fetched data
-│   └── processed/         # cleaned datasets
-|
-├── tests/
-├── pyproject.toml
-├── poetry.lock
-└── README.md
+- fetchers/ – get raw JSON from API
+- pipelines/ – ETL orchestration and data processing logic
+- db/ – database insert logic
+- models/ – data schemas and validation
+- utils/ – shared helpers
 ```
 
 ---
@@ -117,26 +142,17 @@ poetry add --group dev package-name
 ```
 ---
 
+#### 🔒 Environment Variables
 
-### 📊 Data Workflow
+Create a `.env` file if needed:
 
-1. **Fetch data** from APIs / sources
-2. **Store raw data** (immutable)
-3. **Transform & normalize** data
-4. **Persist** to SQL database
-5. **Expose** clean tables for BI
-
----
-
-### 🗄️ Database Design (High Level)
-
-* `brands`
-* `products`
-* `prices`
-* `availability`
-* `snapshots` (time dimension)
-
-Designed to support **historical analysis** and trend comparisons.
+```env
+DB_HOST=
+DB_PORT=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+```
 
 ---
 
@@ -162,22 +178,8 @@ poetry run pytest
 Processed tables are optimized for:
 
 * Power BI
-* Star / snowflake schema
+* Snowflake schema
 * Time-series analysis
-
----
-
-### 🔒 Environment Variables
-
-Create a `.env` file if needed:
-
-```env
-DB_HOST=
-DB_PORT=
-DB_NAME=
-DB_USER=
-DB_PASSWORD=
-```
 
 ---
 
@@ -186,15 +188,6 @@ DB_PASSWORD=
 * Prefer **append-only** tables for historical data
 * Never overwrite raw data
 * Keep transformations reproducible
-
----
-
-### 📌 Roadmap
-
-* [ ] Add data source adapters
-* [ ] Automate scheduled data collection
-* [ ] Expand BI dashboards
-* [ ] Add anomaly detection (price spikes)
 
 ---
 
