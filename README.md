@@ -5,7 +5,7 @@ The classification is based on seller identity and branding, not on official qua
 
 ---
 
-### 🎯 Project Goals
+### Project Goals
 
 * Create an ETL pipeline for coffee market data
 * Collect coffee market data periodically (prices, brands, availability, ratings, etc.)
@@ -18,6 +18,7 @@ The classification is based on seller identity and branding, not on official qua
 Data is collected using the **Allegro REST API** `sale/products` endpoint, which provides listed product data ([documentation](https://developer.allegro.pl/documentation#tag/Products/operation/getFlatProductParametersUsingGET)).
 
 Due to restrictions on the `offers/listing` endpoint (as of January 2026 available only for verified applications), pricing data cannot be reliably collected via the REST API.
+
 ---
 
 ### 🧱 Tech Stack
@@ -31,12 +32,14 @@ Due to restrictions on the `offers/listing` endpoint (as of January 2026 availab
 
 ### Methodology
 
-**Data Extractions**
+**Data Extraction**
+
 Products were fetched using the `/sale/products` endpoint with keyword-based search (e.g. `kawa palarnia`).
 Responses were stored as raw JSON files for traceability and repeatability.
 
 **Data Transformation**
-A normalized relational schema (snowflake-style) was designed in MySQL.
+
+A normalized **relational schema (snowflake-style)** was designed in MySQL.
 
 Core entities include:
 - products
@@ -49,9 +52,10 @@ Reusable attributes (e.g. brand, origin, roast type) are stored once and linked 
 
 **Data Loading**
 
-Python scripts load raw JSON files and insert data into MySQL. Dictionary tables (parameters, parameter_values) are populated once and reused.
-Products are inserted idempotently to avoid duplication.
-Selected parameters (e.g. redundant weight attributes) are explicitly excluded during ingestion.
+- Python scripts load raw JSON files and insert data into MySQL. 
+- Dictionary tables (parameters, parameter_values) are populated once and reused.
+- Products are inserted idempotently to avoid duplication.
+- Selected parameters (e.g. redundant weight attributes) are explicitly excluded during ingestion.
 
 **Data Quality Rules**
 
@@ -60,6 +64,7 @@ Selected parameters (e.g. redundant weight attributes) are explicitly excluded d
 - Standardize parameter names, values, and measurement units where possible.
 
 **Analysis**
+
 SQL queries are used to:
 - Compare coffee origins, brands, and characteristics
 - Count products by selected attributes
@@ -67,9 +72,10 @@ SQL queries are used to:
 The analysis focuses on market structure and product characteristics, not pricing or seller performance.
 
 **Limitations**
-Prices and availability are not analyzed due to restricted access to live listings.
-Catalog products may exist without active offers.
-Results reflect catalog data, not real-time market dynamics.
+
+- Prices and availability are not analyzed due to restricted access to live listings.
+- Catalog products may exist without active offers.
+- Results reflect catalog data, not real-time market dynamics.
 
 ---
 
@@ -194,17 +200,3 @@ Processed tables are optimized for:
 ### 📄 License
 
 MIT
-
-
-1. Created project with poetry with local virtual env
-2. Add readme
-3. Add gitignore, run git init, add remote repo
-4. Add .env
-5. Add linter, prettier, improrts sorting, add config in pyproject.toml, set autoformat on save in vscode
-
-6. Get data from Allegro REST API
-7. Create database schema based on data structure
-8. Create connection to local mysql db
-9. Create python functions to insert one product to db
-10. Insert 30 products to db in loop
-
