@@ -6,6 +6,8 @@ import urllib.parse
 from dotenv import load_dotenv
 from pathlib import Path
 from datetime import datetime
+import urllib.parse
+
 
 load_dotenv()  # loads .env into environment variables
 
@@ -14,8 +16,11 @@ ACCESS_TOKEN = os.getenv("ALLEGRO_ACCESS_TOKEN")
 if not ACCESS_TOKEN:
     raise RuntimeError("ALLEGRO_ACCESS_TOKEN not set")
 
-api_phrase = "republika%20kawy"
-API_URL = f"https://api.allegro.pl/sale/products?phrase={api_phrase}"
+api_phrase = ""
+escaped_phrase = urllib.parse.quote(
+    api_phrase, safe=""
+)  # safe="" means nothing is left unescaped
+API_URL = f"https://api.allegro.pl/sale/products?phrase={escaped_phrase}"
 
 HEADERS = {
     "Authorization": f"Bearer {ACCESS_TOKEN}",
