@@ -12,10 +12,10 @@ from pathlib import Path
 from utils.constants import VALUES_LABELS, VALUES_IDS
 
 BASE_DIR = Path(__file__).resolve().parent
-path_to_data = BASE_DIR.parents[1] / "allegro_responses"
+path_to_data = BASE_DIR.parents[1] / "allegro_responses" / "batch_2026_01_19_171732"
 folder = Path(path_to_data)
-files = [f.name for f in folder.iterdir() if f.is_file()]
-file = BASE_DIR / "example.json"
+files = [f for f in folder.iterdir() if f.is_file()]
+# file = BASE_DIR / "example.json"
 
 
 def run_products_pipeline(raw_products, cursor):
@@ -72,20 +72,21 @@ def run_products_pipeline(raw_products, cursor):
 
 # run_products_pipeline(data["products"], {})
 
-# def main():
-#     cursor, conn = get_cursor()  # Open connection once for all files
-#     try:
-#         for file in files:
-#             with open(file, "r", encoding="utf-8") as f:
-#                 data = json.load(f)
-#             run_products_pipeline(data.get("products", []), cursor)
-#         conn.commit()  # commit once after all products
-#     except Exception as e:
-#         print(f"Error during database operation: {e}")
-#     finally:
-#         cursor.close()
-#         conn.close()
+
+def main():
+    cursor, conn = get_cursor()  # Open connection once for all files
+    try:
+        for file in files:
+            with open(file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            run_products_pipeline(data.get("products", []), cursor)
+        conn.commit()  # commit once after all products
+    except Exception as e:
+        print(f"Error during database operation: {e}")
+    finally:
+        cursor.close()
+        conn.close()
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()
