@@ -32,8 +32,8 @@ def run_products_pipeline(raw_products, cursor):
         for param in product.get("parameters", []):
             if "valuesIds" not in param:
                 continue
-            # print("param", type(param))
-            # insert_parameter(param.dict(), cursor)
+
+            insert_parameter(param, cursor)
 
             values_labels = param.get(VALUES_LABELS, []) or []
             values_values = param.get("values", values_labels) or []
@@ -58,7 +58,7 @@ def run_products_pipeline(raw_products, cursor):
                     cursor=cursor,
                 )
                 map_product_parameter(
-                    product_id=product.id, value_id=vid, cursor=cursor
+                    product_id=product["id"], value_id=vid, cursor=cursor
                 )
 
         # # Insert product
@@ -66,10 +66,11 @@ def run_products_pipeline(raw_products, cursor):
         print(f"Inserted product: {product.get('parameters')}")
 
 
-with open(file, "r", encoding="utf-8") as f:
-    data = json.load(f)
+# test with one file
+# with open(file, "r", encoding="utf-8") as f:
+#     data = json.load(f)
 
-run_products_pipeline(data["products"], {})
+# run_products_pipeline(data["products"], {})
 
 # def main():
 #     cursor, conn = get_cursor()  # Open connection once for all files
