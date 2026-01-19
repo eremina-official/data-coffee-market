@@ -4,7 +4,7 @@ from db.db_connection import get_cursor
 
 def insert_category(category, cursor):
     """Insert category and its parent recursively."""
-    parent_id = category.get("parent_id")
+    parent_id = category.get("parent_id", None)
     cursor.execute(
         "INSERT IGNORE INTO categories (id, name, parent_id) VALUES (%s, %s, %s)",
         (category["id"], category["name"], parent_id),
@@ -28,12 +28,8 @@ def insert_parameter(param: dict, cursor):
     )
 
 
-def insert_parameter_value(value: dict, cursor):
-    """
-    Insert a parameter value into 'parameter_values' table.
-    Expects a dict with keys: id, parameter_id, value
-    Idempotent: skips existing records
-    """
+def insert_parameter_value(param_id, value_id, label, value, cursor):
+    """Insert parameter value only if it does not exist."""
     cursor.execute(
         "INSERT IGNORE INTO parameter_values (id, parameter_id, label, value) VALUES (%s, %s, %s, %s)",
         (value_id, param_id, label, value),

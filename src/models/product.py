@@ -1,5 +1,5 @@
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 import json
 
 
@@ -15,8 +15,8 @@ class ProductParameter(BaseModel):
 
 # Product class is used for raw data validation
 # it can have optional helpers like converting data to json
-# the how to fill missing values for DB insertion and
-# how to loop & map parameters to a product logic should go to pipelines
+# the logic how to fill missing values for DB insertion and
+# the logic that describes how to loop & map parameters to a product should go to pipelines
 class Product(BaseModel):
     id: str
     name: str
@@ -28,30 +28,25 @@ class Product(BaseModel):
     ean: Optional[str] = None
     parameters: List
 
-    # ---------- extract category_id from nested field ----------
-    @field_validator("category_id", mode="before")
+    # ---------- extract values from nested fields ----------
+    @model_validator(mode="before")
     @classmethod
-    def extract_category_id(cls, v, info):
-        if isinstance(v, dict) and "category" in v:
-            return v["category"]["id"]
-        return v
+    def extract_fields(cls, values):
+        category = values.get("category")
+        if category and "id" in category:
+            values["category_id"] = category["id"]
 
-    # ---------- extract publication_status from nested field ----------
-    @field_validator("publication_status", mode="before")
-    @classmethod
-    def extract_publication_status(cls, v, info):
-        if isinstance(v, dict) and "publication" in v:
-            return v["publication"].get("status")
-        return v
+        values["publication_status"] = values.get("publication", {}).get("status")
+        return values
 
     # ---------- validators (Pydantic V2 style) ----------
 
-    @field_validator("name")
-    @classmethod
-    def name_not_empty(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("Product name cannot be empty")
-        return v
+    # @field_validator("name")
+    # @classmethod
+    # def name_not_empty(cls, v: str) -> str:
+    #     if not v.strip():
+    #         raise ValueError("Product name cannot be empty")
+    #     return v
 
     # @field_validator("parameters", mode="before")
     # @classmethod
@@ -101,4 +96,5 @@ class Product(BaseModel):
             "description": self.description_json(),
             "images": self.images_json(),
             "ean": self.extract_ean(),
+            "parameters": self.parameters,
         }

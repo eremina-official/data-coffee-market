@@ -62,10 +62,12 @@ while True:
     print(f"Saved {filename}")
 
     products = data.get("products", [])
+
     if not products:
         break
 
     next_page = data.get("nextPage")
+
     if not next_page or "id" not in next_page:
         break
 
