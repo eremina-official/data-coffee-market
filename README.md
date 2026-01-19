@@ -1,6 +1,6 @@
 ## Polish Independent Coffee Roasters – ETL project 🇵🇱☕
 
-This project analyzes the Polish market of coffee sold by **independent/private roasting houses** (excluding mass-market brands), focusing on pricing, origin countries and brands. The goal is to collect, store and analyze market data over time and present insights via a BI/dashboard layer. 
+This project analyzes the Polish market of coffee sold by **independent/private roasting houses** (excluding mass-market brands), focusing on origin, roast and brand. The goal is to collect, store and analyze market data over time and present insights via a BI/dashboard layer. 
 The classification is based on seller identity and branding, not on official quality certifications.
 
 ---
@@ -27,6 +27,23 @@ Due to restrictions on the `offers/listing` endpoint (as of January 2026 availab
 - MySQL (time-based snapshots)
 - DBeaver (database management)
 - Power BI (data model & dashboards)
+
+---
+
+### 📊 Business Intelligence (Power BI)
+
+The analytical layer is implemented in **Power BI** and connected to a MySQL database populated by the ETL pipeline.
+
+#### Features:
+- Relational data model based on normalized schema
+- KPI cards for market overview
+- Product characteristic analysis (origin, roast, brand)
+- Time-based analysis using snapshot dates
+
+#### Files:
+- `/bi/coffee_market.pbix`
+
+Power BI dashboards consume cleaned, deduplicated data produced by the ETL process.
 
 ---
 
@@ -98,7 +115,6 @@ The analysis focuses on market structure and product characteristics, not pricin
 * Python 3.11+
 * This project uses **Poetry** for dependency management and reproducible builds.
 
----
 
 #### 2️⃣ Clone & Setup
 
@@ -119,7 +135,6 @@ Install dependencies:
 poetry install
 ```
 
----
 
 #### 3️⃣ Activate Environment
 
@@ -133,7 +148,6 @@ or run commands directly:
 poetry run python
 ```
 
----
 
 #### 4 Install Packages
 
@@ -146,7 +160,6 @@ install dev dependancies:
 ```bash
 poetry add --group dev package-name
 ```
----
 
 #### 🔒 Environment Variables
 
@@ -160,32 +173,11 @@ DB_USER=
 DB_PASSWORD=
 ```
 
----
-
-### 📈 Analysis Examples
-
-* Price evolution over time
-* Brand popularity trends
-* Availability by roastery
-* Market segmentation (origin, roast level, processing)
-
----
-
-### 🧪 Testing
+#### 🧪 Testing
 
 ```bash
 poetry run pytest
 ```
-
----
-
-### 🧩 BI / Reporting
-
-Processed tables are optimized for:
-
-* Power BI
-* Snowflake schema
-* Time-series analysis
 
 ---
 
