@@ -12,21 +12,23 @@ from pathlib import Path
 from utils.constants import VALUES_LABELS, VALUES_IDS
 
 BASE_DIR = Path(__file__).resolve().parent
-path_to_data = BASE_DIR.parents[1] / "allegro_responses" / "batch_2026_01_19_171732"
+path_to_data = BASE_DIR.parents[1] / "allegro_responses" / "batch_2026_01_19_185047"
 folder = Path(path_to_data)
 files = [f for f in folder.iterdir() if f.is_file()]
 # file = BASE_DIR / "example.json"
 
 
 def run_products_pipeline(raw_products, cursor):
-    coffee_category_ids = ("74035", "74033")
-    print("raw")
+    coffee_category_ids = ("74035", "74033", "261120")
 
     for raw in raw_products:
         if raw.get("category", {}).get("id") not in coffee_category_ids:
             continue
 
         product = Product(**raw).to_db_dict()
+
+        # Insert product
+        insert_product(product, cursor)
 
         # Insert parameters and values
         for param in product.get("parameters", []):
@@ -61,9 +63,7 @@ def run_products_pipeline(raw_products, cursor):
                     product_id=product["id"], value_id=vid, cursor=cursor
                 )
 
-        # # Insert product
-        insert_product(product, cursor)
-        print(f"Inserted product: {product.get('parameters')}")
+        print(f"Inserted product: {product.get('id')}")
 
 
 # test with one file
