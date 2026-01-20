@@ -23,7 +23,7 @@ Due to restrictions on the `offers/listing` endpoint (as of January 2026 availab
 
 ### 🧱 Tech Stack
 
-- Python (Poetry, Pandas, SQLAlchemy)
+- Python (Poetry, Pydantic, mysql-connector-python)
 - MySQL (time-based snapshots)
 - DBeaver (database management)
 - Power BI (data model & dashboards)
