@@ -21,6 +21,28 @@ Due to restrictions on the `offers/listing` endpoint (as of January 2026 availab
 
 ---
 
+### Project Architecture
+
+This project is designed to run both **locally and in the cloud**, using the same logical data flow.
+
+**Local setup (development & testing):**
+
+`JSON → Python → Local DB → Power BI`
+
+**Cloud setup (production-ready):**
+
+Azure Blob Storage — raw JSON files (data lake)
+
+Azure Data Factory — orchestration and data transformation
+
+Azure SQL Database — curated, analytics-ready data
+
+Power BI — reporting and dashboards (DirectQuery or Import)
+
+This dual setup allows fast local development while remaining fully deployable to Azure without changing the core data model.
+
+---
+
 ### 🧱 Tech Stack
 
 - Python (Poetry, Pydantic, mysql-connector-python)
