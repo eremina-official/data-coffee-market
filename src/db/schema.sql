@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS products (
     images JSON,
     category_id VARCHAR(50),
     ean VARCHAR(20), -- EAN (GTIN) parameter is a standardized identifier for products
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
     CONSTRAINT fk_products_category
         FOREIGN KEY (category_id) REFERENCES categories(id)
 );
