@@ -31,7 +31,7 @@ This project is designed to run both **locally and in the cloud**, using the sam
 
 **Azure Cloud Setup:**
 
-Cloud setupd is described [here](https://github.com/eremina-official/azure-func-coffee-data-etl).
+Cloud setup is described [here](https://github.com/eremina-official/azure-func-coffee-data-etl).
 
 ---
 
