@@ -29,17 +29,9 @@ This project is designed to run both **locally and in the cloud**, using the sam
 
 `JSON → Python → Local DB → Power BI`
 
-**Cloud setup (production-ready):**
+**Azure Cloud Setup:**
 
-Azure Blob Storage — raw JSON files (data lake)
-
-Azure Data Factory — orchestration and data transformation
-
-Azure SQL Database — curated, analytics-ready data
-
-Power BI — reporting and dashboards (DirectQuery or Import)
-
-This dual setup allows fast local development while remaining fully deployable to Azure without changing the core data model.
+Cloud setupd is described [here](https://github.com/eremina-official/azure-func-coffee-data-etl).
 
 ---
 
