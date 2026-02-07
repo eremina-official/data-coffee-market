@@ -1,15 +1,8 @@
-## Polish Independent Coffee Roasters – ETL project 🇵🇱☕
-
-This project analyzes the Polish market of coffee sold by **independent/private roasting houses** (excluding mass-market brands), focusing on origin, roast and brand. The goal is to collect, store and analyze market data over time and present insights via a BI/dashboard layer. 
-The classification is based on seller identity and branding, not on official quality certifications.
-
----
+## Polish Coffee Roasters – ETL project 🇵🇱☕
 
 ### Project Goals
 
-* Create an ETL pipeline for coffee market data
-* Collect coffee market data periodically (prices, brands, availability, ratings, etc.)
-* Prepare clean datasets for BI tools (e.g. Power BI)
+A data-driven exploration the **Polish premium coffee market**, with a focus on coffee sold by **private roasting houses** (excluding mass-market brands). The **goal** is to **collect, clean and analyze market data** and present insights through an **interactive Power BI dashboard**. The focus is on product origins, taste profiles and brand strategies.
 
 ---
 
@@ -21,6 +14,29 @@ Due to restrictions on the `offers/listing` endpoint (as of January 2026 availab
 
 ---
 
+### 📊 Power BI Dashboard – Key Market Insights
+
+☕ What the Data Reveals:
+
+🌍 **Coffee origins that dominate the market**
+Brazil, Peru and Colombia appear most frequently as origins in Allegro’s premium coffee listings.
+
+📦 **How premium coffee is actually packaged**
+Two sizes clearly win: 250 g (specialty-friendly) and 1000 g (bulk buyers and heavy drinkers). Everything else is niche.
+
+🏷️ **Who bets on single-origin quality**
+Blue Orca Coffee, Palarnia Kawy W&A and Nuno stand out for offering the highest number of single-origin coffees, signaling a quality-focused portfolio.
+
+🧭 **Who explores the world the most**
+Blue Orca Coffee, Nuno and Palarnia Kawy Magic Drum offer the widest diversity of countries of origin — a clear differentiation strategy.
+
+🍫 **Taste profiles by country**
+Coffees from Guatemala and India score highest on taste intensity in premium products.
+
+For more insights and detailed analysis, check out the [Power BI dashboard](`/bi/coffee_market.pbix`).
+
+---
+
 ### Project Architecture
 
 This project is designed to run both **locally and in the cloud**, using the same logical data flow.
@@ -28,6 +44,7 @@ This project is designed to run both **locally and in the cloud**, using the sam
 **Local setup (development & testing):**
 
 `JSON → Python → Local DB → Power BI`
+
 
 **Azure Cloud Setup:**
 
@@ -38,26 +55,9 @@ Cloud setup is described [here](https://github.com/eremina-official/azure-func-c
 ### 🧱 Tech Stack
 
 - Python (Poetry, Pydantic, mysql-connector-python)
-- MySQL (time-based snapshots)
+- MySQL
 - DBeaver (database management)
 - Power BI (data model & dashboards)
-
----
-
-### 📊 Business Intelligence (Power BI)
-
-The analytical layer is implemented in **Power BI** and connected to a MySQL database populated by the ETL pipeline.
-
-#### Features:
-- Relational data model based on normalized schema
-- KPI cards for market overview
-- Product characteristic analysis (origin, roast, brand)
-- Time-based analysis using snapshot dates
-
-#### Files:
-- `/bi/coffee_market.pbix`
-
-Power BI dashboards consume cleaned, deduplicated data produced by the ETL process.
 
 ---
 
@@ -66,7 +66,7 @@ Power BI dashboards consume cleaned, deduplicated data produced by the ETL proce
 **Data Extraction**
 
 Products were fetched using the `/sale/products` endpoint with keyword-based search (e.g. `kawa palarnia`).
-Responses were stored as raw JSON files for traceability and repeatability.
+Responses were stored as raw JSON files for traceability and repeatability. 
 
 **Data Transformation**
 
@@ -107,6 +107,7 @@ The analysis focuses on market structure and product characteristics, not pricin
 - Prices and availability are not analyzed due to restricted access to live listings.
 - Catalog products may exist without active offers.
 - Results reflect catalog data, not real-time market dynamics.
+- The classification is based on seller identity and branding, not on official quality certifications.
 
 ---
 
