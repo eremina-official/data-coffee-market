@@ -38,12 +38,12 @@ Blue Orca Coffee, Nuno and Palarnia Kawy Magic Drum offer the widest diversity o
 
 Coffees from Guatemala and India score highest on taste intensity in premium products.
 
-**Overview of Coffee Products**
+#### Overview of Coffee Products
 
 ![Power BI Dashboard Screenshot](/bi/coffee-roasters-powerbi-overview.png)
 
 
-**Overview of Roasters**
+#### Overview of Roasters
 
 ![Power BI Dashboard Screenshot](/bi/coffee-roasters-powerbi-brands.png)
 
