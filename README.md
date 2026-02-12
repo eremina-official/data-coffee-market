@@ -19,21 +19,35 @@ Due to restrictions on the `offers/listing` endpoint (as of January 2026 availab
 ☕ What the Data Reveals:
 
 🌍 **Coffee origins that dominate the market**
+
 Brazil, Peru and Colombia appear most frequently as origins in Allegro’s premium coffee listings.
 
 📦 **How premium coffee is actually packaged**
+
 Two sizes clearly win: 250 g (specialty-friendly) and 1000 g (bulk buyers and heavy drinkers). Everything else is niche.
 
 🏷️ **Who bets on single-origin quality**
+
 Blue Orca Coffee, Palarnia Kawy W&A and Nuno stand out for offering the highest number of single-origin coffees, signaling a quality-focused portfolio.
 
 🧭 **Who explores the world the most**
+
 Blue Orca Coffee, Nuno and Palarnia Kawy Magic Drum offer the widest diversity of countries of origin — a clear differentiation strategy.
 
 🍫 **Taste profiles by country**
+
 Coffees from Guatemala and India score highest on taste intensity in premium products.
 
-For more insights and detailed analysis, check out the [Power BI dashboard](`/bi/coffee_market.pbix`).
+**Overview of Coffee Products**
+
+![Power BI Dashboard Screenshot](/bi/coffee-roasters-powerbi-overview.png)
+
+
+**Overview of Roasters**
+
+![Power BI Dashboard Screenshot](/bi/coffee-roasters-powerbi-brands.png)
+
+For more insights and detailed analysis, check out the [Power BI dashboard](`/bi/coffee-market-2026.pbix`).
 
 ---
 
