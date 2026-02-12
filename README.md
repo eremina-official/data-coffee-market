@@ -47,7 +47,7 @@ Coffees from Guatemala and India score highest on taste intensity in premium pro
 
 ![Power BI Dashboard Screenshot](/bi/coffee-roasters-powerbi-brands.png)
 
-For more insights and detailed analysis, check out the [Power BI dashboard](`/bi/coffee-market-2026.pbix`).
+For more insights and detailed analysis, check out the [Power BI dashboard](/bi/coffee-market-2026.pbix).
 
 ---
 
