@@ -98,17 +98,17 @@ A normalized **relational schema (snowflake-style)** was designed in MySQL.
 - parameter_values
 - product_parameter_values (many-to-many mapping)
 
-**Engineering Decisions**
+***Engineering Decisions***
 
-- Why snowflake schema? Product parameters are dinamic and multivalued (roast level, origin, processing method)
-- Dictionary for product attributes: attributes (brand, origin, roast type) are stored once and referenced via foreign keys. This reduces redundancy and allows for easier updates to attribute names/values.
+- Why snowflake schema? Product parameters are dinamic and multivalued (roast level, origin, processing method).
+- Dictionary for product parameters: attributes (brand, origin, roast type) are stored once and referenced via foreign keys to reduces redundancy and allow for easier updates to attribute names/values.
 - Parameters without stable identifiers or consistent naming were excluded to avoid polluting the dictionary tables.
 
 #### 3. Data Loading to MySQL
 
 Python scripts process raw JSON and insert structured records into MySQL.
 
-**Engineering Decisions**
+***Engineering Decisions***
 
 - Products are inserted idempotently to avoid duplication (unique ids).
 - Two phase loading: first dictionary tables (parameters, parameter_values) are populated, then products and their parameter mappings are inserted.
@@ -125,14 +125,13 @@ Strict filtering improves analytical consistency but may exclude edge-case produ
 #### 5. Analysis Strategy
 
 SQL queries are used to:
-- Compare coffee origins, brands, and characteristics
-- Count products by selected attributes
-- Filter products based on parameter cardinality
-The analysis focuses on market structure and product characteristics, not pricing or seller performance.
+- Compare coffee origins, brands, and characteristics.
+- Count products by selected attributes.
+- Filter products based on parameter cardinality.
 
 #### 6. Limitations
 
-- Prices and availability are not analyzed due to restricted access to live listings.
+- The analysis focuses on market structure and product characteristics, not pricing or seller performance.
 - Catalog products may exist without active offers.
 - Results reflect catalog data, not real-time market dynamics.
 - The classification is based on seller identity and branding, not on official quality certifications.
@@ -142,11 +141,13 @@ The analysis focuses on market structure and product characteristics, not pricin
 ### 📁 Project Structure
 
 ```text
-- fetchers/ – get raw JSON from API
-- pipelines/ – ETL orchestration and data processing logic
-- db/ – database insert logic
-- models/ – data schemas and validation
-- utils/ – shared helpers
+src/
+  - fetchers/ – get raw JSON from API
+  - pipelines/ – ETL orchestration and data processing logic
+  - db/ – database insert logic
+  - models/ – data schemas and validation
+  - utils/ – shared helpers
+bi/ – Power BI dashboard files
 ```
 
 ---
