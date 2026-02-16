@@ -77,38 +77,52 @@ Cloud setup is described [here](https://github.com/eremina-official/azure-func-c
 
 ### Methodology
 
-**Data Extraction**
+#### Data Extraction
 
 Products were fetched using the `/sale/products` endpoint with keyword-based search (e.g. `kawa palarnia`).
-Responses were stored as raw JSON files for traceability and repeatability. 
+Responses were stored as raw JSON files for traceability and repeatability.
 
-**Data Transformation**
+**Engineering Decisions**
+
+- Immutable ingestion layer (raw files are never modified. Any corrections are handled in downstream transformations.)
+- Idempotent re-fetching strategy (files are stored with deterministic filenames based on timestamp + query hash to avoid accidental overwrites)
+
+#### Data Transformation
 
 A normalized **relational schema (snowflake-style)** was designed in MySQL.
 
-Core entities include:
+**Schema Design:**
 - products
 - categories
 - parameters (dictionary)
 - parameter_values
 - product_parameter_values (many-to-many mapping)
 
-Reusable attributes (e.g. brand, origin, roast type) are stored once and linked to products. Images and descriptions are stored as JSON to preserve original structure.
+**Engineering Decisions**
 
-**Data Loading**
+- Why snowflake schema? Product parameters are dinamic and multivalued (roast level, origin, processing method)
+- Dictionary for product attributes: attributes (brand, origin, roast type) are stored once and referenced via foreign keys. This reduces redundancy and allows for easier updates to attribute names/values.
+- Parameters without stable identifiers or consistent naming were excluded to avoid polluting the dictionary tables.
 
-- Python scripts load raw JSON files and insert data into MySQL. 
-- Dictionary tables (parameters, parameter_values) are populated once and reused.
-- Products are inserted idempotently to avoid duplication.
-- Selected parameters (e.g. redundant weight attributes) are explicitly excluded during ingestion.
+#### Data Loading to MySQL
 
-**Data Quality Rules**
+Python scripts process raw JSON and insert structured records into MySQL.
 
-- Ignore parameters without stable or reusable identifiers.
+**Engineering Decisions**
+
+- Products are inserted idempotently to avoid duplication (unique ids).
+- Two phase loading: first dictionary tables (parameters, parameter_values) are populated, then products and their parameter mappings are inserted.
+
+#### Data Quality Rules
+
+- Data quality is enforced during transformation, not at ingestion or postload. This allows for traceability and reprocessing if rules change.
 - Filter out non-coffee products returned by keyword-based searches.
 - Standardize parameter names, values, and measurement units where possible.
 
-**Analysis**
+Trade-offs:
+Strict filtering improves analytical consistency but may exclude edge-case products.
+
+#### Analysis Strategy
 
 SQL queries are used to:
 - Compare coffee origins, brands, and characteristics
@@ -116,7 +130,7 @@ SQL queries are used to:
 - Filter products based on parameter cardinality
 The analysis focuses on market structure and product characteristics, not pricing or seller performance.
 
-**Limitations**
+#### Limitations
 
 - Prices and availability are not analyzed due to restricted access to live listings.
 - Catalog products may exist without active offers.
@@ -139,13 +153,13 @@ The analysis focuses on market structure and product characteristics, not pricin
 
 ### 🚀 Getting Started
 
-#### 1️⃣ Requirements
+#### 1. Requirements
 
 * Python 3.11+
 * This project uses **Poetry** for dependency management and reproducible builds.
 
 
-#### 2️⃣ Clone & Setup
+#### 2. Clone & Setup
 
 ```bash
 git clone <repo-url>
@@ -165,7 +179,7 @@ poetry install
 ```
 
 
-#### 3️⃣ Activate Environment
+#### 3. Activate Environment
 
 ```bash
 poetry shell
@@ -178,7 +192,7 @@ poetry run python
 ```
 
 
-#### 4 Install Packages
+#### 4. Install Packages
 
 ```bash
 poetry add package-name
@@ -207,14 +221,6 @@ DB_PASSWORD=
 ```bash
 poetry run pytest
 ```
-
----
-
-### 🛠️ Development Notes
-
-* Prefer **append-only** tables for historical data
-* Never overwrite raw data
-* Keep transformations reproducible
 
 ---
 
