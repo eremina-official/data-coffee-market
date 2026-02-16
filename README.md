@@ -77,7 +77,7 @@ Cloud setup is described [here](https://github.com/eremina-official/azure-func-c
 
 ### Methodology
 
-#### Data Extraction
+#### 1. Data Extraction
 
 Products were fetched using the `/sale/products` endpoint with keyword-based search (e.g. `kawa palarnia`).
 Responses were stored as raw JSON files for traceability and repeatability.
@@ -87,7 +87,7 @@ Responses were stored as raw JSON files for traceability and repeatability.
 - Immutable ingestion layer (raw files are never modified. Any corrections are handled in downstream transformations.)
 - Idempotent re-fetching strategy (files are stored with deterministic filenames based on timestamp + query hash to avoid accidental overwrites)
 
-#### Data Transformation
+#### 2. Data Transformation
 
 A normalized **relational schema (snowflake-style)** was designed in MySQL.
 
@@ -104,7 +104,7 @@ A normalized **relational schema (snowflake-style)** was designed in MySQL.
 - Dictionary for product attributes: attributes (brand, origin, roast type) are stored once and referenced via foreign keys. This reduces redundancy and allows for easier updates to attribute names/values.
 - Parameters without stable identifiers or consistent naming were excluded to avoid polluting the dictionary tables.
 
-#### Data Loading to MySQL
+#### 3. Data Loading to MySQL
 
 Python scripts process raw JSON and insert structured records into MySQL.
 
@@ -113,7 +113,7 @@ Python scripts process raw JSON and insert structured records into MySQL.
 - Products are inserted idempotently to avoid duplication (unique ids).
 - Two phase loading: first dictionary tables (parameters, parameter_values) are populated, then products and their parameter mappings are inserted.
 
-#### Data Quality Rules
+#### 4. Data Quality Rules
 
 - Data quality is enforced during transformation, not at ingestion or postload. This allows for traceability and reprocessing if rules change.
 - Filter out non-coffee products returned by keyword-based searches.
@@ -122,7 +122,7 @@ Python scripts process raw JSON and insert structured records into MySQL.
 Trade-offs:
 Strict filtering improves analytical consistency but may exclude edge-case products.
 
-#### Analysis Strategy
+#### 5. Analysis Strategy
 
 SQL queries are used to:
 - Compare coffee origins, brands, and characteristics
@@ -130,7 +130,7 @@ SQL queries are used to:
 - Filter products based on parameter cardinality
 The analysis focuses on market structure and product characteristics, not pricing or seller performance.
 
-#### Limitations
+#### 6. Limitations
 
 - Prices and availability are not analyzed due to restricted access to live listings.
 - Catalog products may exist without active offers.
