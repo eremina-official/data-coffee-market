@@ -16,27 +16,29 @@ Due to restrictions on the `offers/listing` endpoint (as of January 2026 availab
 
 ### 📊 Power BI Dashboard – Key Market Insights
 
-☕ What the Data Reveals:
+What the Data Reveals:
 
-🌍 **Coffee origins that dominate the market**
+🌍 ***Coffee origins that dominate the market***
+  
+- **Brazil**, **Peru** and **Colombia** appear most frequently as origins in Allegro’s premium coffee listings.
 
-Brazil, Peru and Colombia appear most frequently as origins in Allegro’s premium coffee listings.
+📦 ***How premium coffee is actually packaged***
 
-📦 **How premium coffee is actually packaged**
+- **Two sizes clearly win**: 250 g (specialty-friendly) and 1000 g (bulk buyers and heavy drinkers). Everything else is niche.
 
-Two sizes clearly win: 250 g (specialty-friendly) and 1000 g (bulk buyers and heavy drinkers). Everything else is niche.
+🏷️ ***Who bets on single-origin quality***
 
-🏷️ **Who bets on single-origin quality**
+**Blue Orca Coffee**, **Palarnia Kawy W&A** and **Nuno** stand out for offering the highest number of single-origin coffees, signaling a quality-focused portfolio.
 
-Blue Orca Coffee, Palarnia Kawy W&A and Nuno stand out for offering the highest number of single-origin coffees, signaling a quality-focused portfolio.
+🧭 ***Who explores the world the most***
 
-🧭 **Who explores the world the most**
+**Blue Orca Coffee**, **Nuno** and **Palarnia Kawy Magic Drum** offer the widest diversity of countries of origin — a clear differentiation strategy.
 
-Blue Orca Coffee, Nuno and Palarnia Kawy Magic Drum offer the widest diversity of countries of origin — a clear differentiation strategy.
+🍫 ***Taste profiles by country***
 
-🍫 **Taste profiles by country**
+- Coffees from **Guatemala** and **India** score highest on taste intensity in premium products.
 
-Coffees from Guatemala and India score highest on taste intensity in premium products.
+---
 
 #### Overview of Coffee Products
 
@@ -55,7 +57,8 @@ For more insights and detailed analysis, check out the [Power BI dashboard](/bi/
 
 This project is designed to run both **locally and in the cloud**, using the same logical data flow.
 
-**Local setup (development & testing):**
+
+**Local Setup (Development & Testing):**
 
 `JSON → Python → Local DB → Power BI`
 
@@ -77,7 +80,7 @@ Cloud setup is described [here](https://github.com/eremina-official/azure-func-c
 
 ### Methodology
 
-#### 1. Data Extraction
+#### Data Extraction
 
 Products were fetched using the `/sale/products` endpoint with keyword-based search (e.g. `kawa palarnia`).
 Responses were stored as raw JSON files for traceability and repeatability.
@@ -87,7 +90,7 @@ Responses were stored as raw JSON files for traceability and repeatability.
 - Immutable ingestion layer (raw files are never modified. Any corrections are handled in downstream transformations.)
 - Idempotent re-fetching strategy (files are stored with deterministic filenames based on timestamp + query hash to avoid accidental overwrites)
 
-#### 2. Data Transformation
+#### Data Transformation
 
 A normalized **relational schema (snowflake-style)** was designed in MySQL.
 
@@ -104,7 +107,7 @@ A normalized **relational schema (snowflake-style)** was designed in MySQL.
 - Dictionary for product parameters: attributes (brand, origin, roast type) are stored once and referenced via foreign keys to reduces redundancy and allow for easier updates to attribute names/values.
 - Parameters without stable identifiers or consistent naming were excluded to avoid polluting the dictionary tables.
 
-#### 3. Data Loading to MySQL
+#### Data Loading to MySQL
 
 Python scripts process raw JSON and insert structured records into MySQL.
 
@@ -113,7 +116,13 @@ Python scripts process raw JSON and insert structured records into MySQL.
 - Products are inserted idempotently to avoid duplication (unique ids).
 - Two phase loading: first dictionary tables (parameters, parameter_values) are populated, then products and their parameter mappings are inserted.
 
-#### 4. Data Quality Rules
+#### Data Analysis
+
+**Power BI** consumes the curated tables (views) and presents dashboards. Data model implements **star schema** for efficient querying.
+
+---
+
+#### Data Quality Rules
 
 - Data quality is enforced during transformation, not at ingestion or postload. This allows for traceability and reprocessing if rules change.
 - Filter out non-coffee products returned by keyword-based searches.
@@ -122,14 +131,14 @@ Python scripts process raw JSON and insert structured records into MySQL.
 Trade-offs:
 Strict filtering improves analytical consistency but may exclude edge-case products.
 
-#### 5. Analysis Strategy
+#### Analysis Strategy
 
 SQL queries are used to:
 - Compare coffee origins, brands, and characteristics.
 - Count products by selected attributes.
 - Filter products based on parameter cardinality.
 
-#### 6. Limitations
+#### Limitations
 
 - The analysis focuses on market structure and product characteristics, not pricing or seller performance.
 - Catalog products may exist without active offers.
@@ -154,56 +163,27 @@ bi/ – Power BI dashboard files
 
 ### 🚀 Getting Started
 
-#### 1. Requirements
+#### Requirements
 
 * Python 3.11+
 * This project uses **Poetry** for dependency management and reproducible builds.
 
 
-#### 2. Clone & Setup
+#### Clone & Install Dependencies
 
 ```bash
 git clone <repo-url>
 cd data-coffee-market
-```
 
-(Optional – keep venv inside project)
-
-```bash
-poetry config virtualenvs.in-project true --local
-```
-
-Install dependencies:
-
-```bash
 poetry install
 ```
 
-
-#### 3. Activate Environment
+#### Activate Environment
 
 ```bash
 poetry shell
 ```
 
-or run commands directly:
-
-```bash
-poetry run python
-```
-
-
-#### 4. Install Packages
-
-```bash
-poetry add package-name
-```
-
-install dev dependancies:
-
-```bash
-poetry add --group dev package-name
-```
 
 #### 🔒 Environment Variables
 
