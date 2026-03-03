@@ -87,7 +87,7 @@ Responses were stored as raw JSON files for traceability and repeatability.
 
 ***Engineering Decisions***
 
-- Immutable ingestion layer (raw files are never modified. Any corrections are handled in downstream transformations.)
+- Immutable ingestion layer (raw files are never modified)
 - Idempotent re-fetching strategy (files are stored with deterministic filenames based on timestamp + query hash to avoid accidental overwrites)
 
 #### Data Transformation
