@@ -155,6 +155,7 @@ src/
   - pipelines/ – ETL orchestration and data processing logic
   - db/ – database insert logic
   - models/ – data schemas and validation
+  - sql/ – SQL scripts for data analysis and Power BI views
   - utils/ – shared helpers
 bi/ – Power BI dashboard files
 ```
