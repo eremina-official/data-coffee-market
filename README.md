@@ -14,7 +14,7 @@ Due to restrictions on the `offers/listing` endpoint (as of January 2026 availab
 
 ---
 
-### 📊 Power BI Dashboard – Key Market Insights
+### 📊 Interactive Power BI Dashboard – Key Market Insights
 
 What the Data Reveals:
 
@@ -49,7 +49,7 @@ What the Data Reveals:
 
 ![Power BI Dashboard Screenshot](/bi/coffee-roasters-powerbi-brands.png)
 
-For more insights and detailed analysis, check out the [Power BI dashboard](/bi/coffee-market-2026.pbix).
+These insights are generated from an automated ETL pipeline and explored interactively in Power BI, demonstrating how raw product data can be transformed into market-level intelligence. For more insights and detailed analysis, check out the [Power BI dashboard](/bi/coffee-market-2026.pbix).
 
 ---
 
@@ -71,10 +71,10 @@ Cloud setup is described [here](https://github.com/eremina-official/azure-func-c
 
 ### 🧱 Tech Stack
 
-- Python (Poetry, Pydantic, mysql-connector-python)
-- MySQL
+- Python for data extraction and transformation (Poetry, Pydantic, mysql-connector-python)
+- MySQL (structured data storage and analysis)
 - DBeaver (database management)
-- Power BI (data model & dashboards)
+- Power BI (DAX, data modeling, dashboards)
 
 ---
 
@@ -118,7 +118,11 @@ Python scripts process raw JSON and insert structured records into MySQL.
 
 #### Data Analysis
 
-**Power BI** consumes the curated tables (views) and presents dashboards. Data model implements **star schema** for efficient querying.
+**Power BI** consumes the curated tables (views) and presents dashboards. The Power BI model implements a **Fact Constellation schema** (few fact tables that share common dimensions). 
+
+***Engineering Decisions***
+
+- Why not **star schema** in Power BI? The product parameters are dynamic and multivalued, **analysis requires complicated quires with multiple joins**. A star schema would require denormalization and lead to data duplication, maintenance and performance issues.
 
 ---
 
@@ -170,19 +174,15 @@ bi/ – Power BI dashboard files
 * This project uses **Poetry** for dependency management and reproducible builds.
 
 
-#### Clone & Install Dependencies
+#### Clone, Activate Environment & Install Dependencies
 
 ```bash
 git clone <repo-url>
 cd data-coffee-market
 
-poetry install
-```
-
-#### Activate Environment
-
-```bash
 poetry shell
+
+poetry install
 ```
 
 
